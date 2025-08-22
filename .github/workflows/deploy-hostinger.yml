@@ -50,5 +50,5 @@ jobs:
           local-dir: dist/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           protocol: ftps
-          # Opcional: limpa arquivos antigos (use com cuidado)
-          # dangerous-clean-slate: true
+          # Remove todos os arquivos antigos antes do upload (use com cuidado)
+          dangerous-clean-slate: true
