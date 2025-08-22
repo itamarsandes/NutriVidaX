@@ -40,7 +40,8 @@ jobs:
           name: dist
           path: dist
 
-      - name: Deploy via FTP
+      - name: Deploy via FTPS
+        id: deploy_ftps
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -50,5 +51,20 @@ jobs:
           local-dir: dist/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           protocol: ftps
+          security: loose
+          # Remove todos os arquivos antigos antes do upload (use com cuidado)
+          dangerous-clean-slate: true
+
+      - name: Deploy via FTP (fallback se FTPS falhar)
+        if: steps.deploy_ftps.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          local-dir: dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          protocol: ftp
           # Remove todos os arquivos antigos antes do upload (use com cuidado)
           dangerous-clean-slate: true
