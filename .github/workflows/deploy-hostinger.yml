@@ -34,22 +34,41 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Preflight - validar secrets/variables
+        shell: bash
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR }}
+        run: |
+          missing=0
+          for v in FTP_SERVER FTP_USERNAME FTP_PASSWORD FTP_SERVER_DIR; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing required secret/variable: $v"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Configure os secrets ou variables exigidos em Settings > Secrets and variables > Actions"
+            exit 1
+          fi
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Deploy via FTPS
+    - name: Deploy via FTPS
         id: deploy_ftps
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+      server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
+      username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+      password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
           port: 21
           local-dir: dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+      server-dir: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR }}
           protocol: ftps
           security: loose
           # Remove todos os arquivos antigos antes do upload (use com cuidado)
@@ -59,12 +78,12 @@ jobs:
         if: steps.deploy_ftps.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+      server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER }}
+      username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME }}
+      password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD }}
           port: 21
           local-dir: dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+      server-dir: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR }}
           protocol: ftp
           # Remove todos os arquivos antigos antes do upload (use com cuidado)
           dangerous-clean-slate: true
