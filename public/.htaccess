@@ -1,0 +1,13 @@
+# Vite/React SPA fallback
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Ignora arquivos/diretorios existentes
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Redireciona todas as outras requisições para index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
