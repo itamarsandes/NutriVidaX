@@ -2,6 +2,12 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase /
 
+# Ensure index.html is default document
+DirectoryIndex index.html
+
+# Send 404s to index.html (SPA fallback alternative)
+ErrorDocument 404 /index.html
+
 # Don't rewrite existing files or directories
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
