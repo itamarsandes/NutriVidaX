@@ -1,10 +1,14 @@
 Options -MultiViews
 RewriteEngine On
+RewriteBase /
 
-# Serve existing files/directories directly
+# Don't rewrite existing files or directories
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
+
+# Prevent rewriting the index.html to itself
+RewriteRule ^index\.html$ - [L]
 
 # Fallback to index.html for all other routes (SPA routing)
 RewriteRule . /index.html [L]
