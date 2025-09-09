@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+  "postbuild": "node scripts/copy-htaccess.cjs",
     "icons": "node scripts/generate-icons.cjs",
     "favicon": "node scripts/generate-favicon.cjs"
   },
